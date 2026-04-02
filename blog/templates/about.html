@@ -1,1 +1,147 @@
 <!-- templates/about.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | My Blog</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f7fb;
+        }
+
+        /* Navbar */
+        header {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        header .logo {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        header nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        header nav a:hover {
+            color: #007bff;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(to right, #6db3f2, #1e69de);
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 18px;
+        }
+
+        /* Content */
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .section p {
+            line-height: 1.7;
+            color: #555;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+    <div class="logo">My Blog</div>
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'contact' %}">Contact</a>
+    </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+    <h1>About Us</h1>
+    <p>Learn more about our blog and what we do</p>
+</section>
+
+<!-- Content -->
+<div class="container">
+
+    <div class="section">
+        <h2>Our Mission</h2>
+        <p>
+            Our mission is to provide helpful, engaging, and high-quality content for readers.
+            We aim to simplify complex topics and share valuable insights about travel,
+            lifestyle, and technology.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Who We Are</h2>
+        <p>
+            We are passionate bloggers who love sharing knowledge and experiences.
+            Our goal is to inspire and educate people through well-written blogs and articles.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Why Choose Us</h2>
+        <p>
+            We focus on delivering authentic and useful content. Whether you're looking for
+            travel tips or learning resources, we’ve got you covered.
+        </p>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>© 2026 My Blog. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
