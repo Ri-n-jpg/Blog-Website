@@ -57,29 +57,44 @@
         </ul>
 
         <!-- SEARCH BAR -->
-        <form method="GET" class="d-flex me-3">
+        <form method="GET" action="{% url 'home' %}"  class="d-flex me-3">
             <input class="form-control me-2" type="search" name="q" placeholder="Search blogs..." aria-label="Search">
             <button class="btn btn-outline-primary" type="submit">Search</button>
         </form>
+        <ul class="navbar-nav mb-2 mb-lg-0">
+
+    {% if user.is_authenticated %}
+        <!-- ✅ Create Blog Button -->
+        <li class="nav-item me-2">
+            <a href="{% url 'create_blog' %}" class="btn btn-primary">
+                + Create Blog
+            </a>
+        </li>
+
+        <!-- Logout -->
+        <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
+        </li>
+
+    {% else %}
+        <!-- Login -->
+        <li class="nav-item me-2">
+            <a href="{% url 'login' %}" class="btn btn-dark">Login</a>
+        </li>
+
+        <!-- Signup -->
+        <li class="nav-item">
+            <a href="{% url 'signup' %}" class="btn btn-success">Sign Up</a>
+        </li>
+    {% endif %}
+
+</ul>
 
         <!-- LOGIN / SIGNUP / LOGOUT -->
-        <ul class="navbar-nav mb-2 mb-lg-0">
-            {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-danger">Logout</button>
-                    </form>
-                </li>
-            {% else %}
-                <li class="nav-item me-2">
-                    <a class="btn btn-outline-success" href="{% url 'login' %}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-primary" href="{% url 'signup' %}">Sign Up</a>
-                </li>
-            {% endif %}
-        </ul>
+
 
     </div>
 </nav>

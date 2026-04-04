@@ -10,4 +10,6 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('blog/edit/<slug:slug>/', views.edit_blog, name='edit_blog'),
     path('blog/delete/<slug:slug>/', views.delete_blog, name='delete_blog'),
+path('create/', views.create_blog, name='create_blog'),
+path('create-blog/', views.create_blog, name='create_blog'),
 ]

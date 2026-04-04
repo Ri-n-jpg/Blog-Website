@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Blog, Comment, Contact
+from django.utils.text import slugify
+from .models import Blog, Comment, Contact,Category
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
@@ -17,6 +18,7 @@ def home(request):
     paginator = Paginator(blogs_list, 6)
     page_number = request.GET.get('page')
     blogs = paginator.get_page(page_number)
+    print("SEARCH QUERY:", query)
 
     return render(request, 'home.html', {'blogs': blogs})
 
@@ -101,3 +103,30 @@ def signup_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
+@login_required
+def create_blog(request):
+    if request.method == "POST":
+        title = request.POST.get('title')
+        category_id = request.POST.get('category')
+        image = request.FILES.get('featured_image')
+        short_description = request.POST.get('short_description')
+        blog_body = request.POST.get('blog_body')
+        status = request.POST.get('status')
+
+        slug = slugify(title)
+
+        blog = Blog.objects.create(
+            title=title,
+            slug=slug,
+            category_id=category_id,
+            author=request.user,
+            featured_image=image,
+            short_description=short_description,
+            blog_body=blog_body,
+            status=status
+        )
+
+        return redirect('blog_detail', slug=blog.slug)
+
+    categories = Category.objects.all()
+    return render(request, 'create_blog.html', {'categories': categories})
