@@ -41,6 +41,8 @@ class Blog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     views = models.IntegerField(default=0)
+    # ✅ Add this field
+    likes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title

@@ -49,6 +49,27 @@
         .back-btn {
             margin-top: 30px;
         }
+         /* Like Button */
+        .like-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #4b2e83;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .like-btn.liked {
+            color: #e74c3c; /* red if liked */
+        }
+
+        .like-btn:hover {
+            transform: scale(1.2);
+            color: #e74c3c;
+        }
     </style>
 </head>
 
@@ -63,9 +84,13 @@
     <div class="blog-title">{{ blog.title }}</div>
 
     <!-- 📅 Meta -->
-    <div class="blog-meta">
-        📅 {{ blog.created_at }} | 👁 {{ blog.views }} views
-    </div>
+    <!-- 📅 Meta + Likes -->
+<div class="blog-meta d-flex align-items-center gap-3">
+    📅 {{ blog.created_at }} | 👁 {{ blog.views }} views
+    <button class="like-btn">
+        ❤️ <span class="like-count">{{ blog.likes }}</span>
+    </button>
+</div>
 
     <!-- 📄 Content -->
     <div class="blog-content">
@@ -107,6 +132,38 @@
 <!-- 🔙 Back Button -->
 <a href="{% url 'home' %}" class="btn btn-dark back-btn">⬅ Back to Home</a>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded",()=>{
+    const likeBtn=document.querySelector('.like-btn');
+    likeBtn.addEventListener('click',()=>{
+    const countSpan=likeBtn.querySelector('.like-count');
+    let count=parseInt(countSpan.textContent);
+       if (likeBtn.classList.contains('liked')) {
+            // Unlike
+            count--;
+            likeBtn.classList.remove('liked');
+        } else {
+            // Like
+            count++;
+            likeBtn.classList.add('liked');
+        }
 
+        countSpan.textContent = count;
+
+        // Animate heart
+        likeBtn.style.transform = "scale(1.4)";
+        setTimeout(() => { likeBtn.style.transform = "scale(1)"; }, 150);
+
+        // Send AJAX to backend
+        fetch("{% url 'like_blog' blog.slug %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+        });
+    });
+});
+
+</script>
 </body>
 </html>

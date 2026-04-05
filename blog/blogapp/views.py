@@ -130,3 +130,27 @@ def create_blog(request):
 
     categories = Category.objects.all()
     return render(request, 'create_blog.html', {'categories': categories})
+from django.contrib.auth.models import User
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    blogs = Blog.objects.filter(author=user)
+
+    return render(request, 'profile.html', {
+        'profile_user': user,
+        'blogs': blogs
+    })
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def like_blog(request, slug):
+    if request.method == "POST":
+        blog = get_object_or_404(Blog, slug=slug)
+
+        # Toggle like for demonstration (simple count)
+        blog.likes += 1
+        blog.save()
+        return JsonResponse({"likes": blog.likes})
+    return JsonResponse({"error": "Invalid request"}, status=400)
