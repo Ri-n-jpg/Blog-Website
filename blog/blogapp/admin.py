@@ -1,6 +1,5 @@
 from django.contrib import admin
-from . models import Category,Blog
-from .models import Contact
+from .models import Category, Blog, Contact
 from django.utils import timezone
 class BlogAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
