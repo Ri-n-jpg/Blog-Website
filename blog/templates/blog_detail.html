@@ -49,7 +49,8 @@
         .back-btn {
             margin-top: 30px;
         }
-         /* Like Button */
+
+        /* Like Button */
         .like-btn {
             background: none;
             border: none;
@@ -59,16 +60,24 @@
             align-items: center;
             gap: 5px;
             color: #4b2e83;
-            transition: transform 0.2s, color 0.2s;
         }
 
         .like-btn.liked {
-            color: #e74c3c; /* red if liked */
+            color: #e74c3c;
         }
 
-        .like-btn:hover {
-            transform: scale(1.2);
-            color: #e74c3c;
+        /* Save Button */
+        .save-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .save-btn.saved {
+            color: #007bff;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -83,14 +92,29 @@
     <!-- 📝 Title -->
     <div class="blog-title">{{ blog.title }}</div>
 
-    <!-- 📅 Meta -->
-    <!-- 📅 Meta + Likes -->
-<div class="blog-meta d-flex align-items-center gap-3">
-    📅 {{ blog.created_at }} | 👁 {{ blog.views }} views
-    <button class="like-btn">
-        ❤️ <span class="like-count">{{ blog.likes }}</span>
-    </button>
-</div>
+    <!-- 📅 Meta + Actions -->
+    <div class="blog-meta d-flex align-items-center gap-3">
+
+        📅 {{ blog.created_at }} | 👁 {{ blog.views }} views
+
+        <!-- ❤️ Like -->
+        <button class="like-btn">
+            ❤️ <span class="like-count">{{ blog.likes }}</span>
+        </button>
+
+        <!-- 🔖 Save -->
+        {% if user.is_authenticated %}
+        <button id="saveBtn"
+            class="save-btn {% if user in blog.saved_by.all %}saved{% endif %}">
+            {% if user in blog.saved_by.all %}
+                🔖 Saved
+            {% else %}
+                🔖 Save
+            {% endif %}
+        </button>
+        {% endif %}
+
+    </div>
 
     <!-- 📄 Content -->
     <div class="blog-content">
@@ -107,7 +131,7 @@
         <button type="submit" class="btn btn-primary">Post Comment</button>
     </form>
 
-    <!-- 📜 DISPLAY COMMENTS -->
+    <!-- 📜 COMMENTS -->
     <hr class="mt-4">
     <h4>All Comments</h4>
     {% for comment in comments %}
@@ -121,40 +145,39 @@
     {% endfor %}
 
     <!-- 🔘 ACTION BUTTONS -->
-  <!-- 🔘 ACTION BUTTONS -->
-<div class="mt-4">
-    {% if user.is_authenticated and user == blog.author %}
-        <a href="{% url 'edit_blog' blog.slug %}" class="btn btn-warning">✏️ Edit</a>
-        <a href="{% url 'delete_blog' blog.slug %}" class="btn btn-danger">🗑️ Delete</a>
-    {% endif %}
+    <div class="mt-4">
+        {% if user.is_authenticated and user == blog.author %}
+            <a href="{% url 'edit_blog' blog.slug %}" class="btn btn-warning">✏️ Edit</a>
+            <a href="{% url 'delete_blog' blog.slug %}" class="btn btn-danger">🗑️ Delete</a>
+        {% endif %}
+    </div>
+
+    <!-- 🔙 Back -->
+    <a href="{% url 'home' %}" class="btn btn-dark back-btn">⬅ Back to Home</a>
+
 </div>
 
-<!-- 🔙 Back Button -->
-<a href="{% url 'home' %}" class="btn btn-dark back-btn">⬅ Back to Home</a>
-</div>
+<!-- JS -->
 <script>
-    document.addEventListener("DOMContentLoaded",()=>{
-    const likeBtn=document.querySelector('.like-btn');
-    likeBtn.addEventListener('click',()=>{
-    const countSpan=likeBtn.querySelector('.like-count');
-    let count=parseInt(countSpan.textContent);
-       if (likeBtn.classList.contains('liked')) {
-            // Unlike
+document.addEventListener("DOMContentLoaded", () => {
+
+    // ❤️ LIKE
+    const likeBtn = document.querySelector('.like-btn');
+
+    likeBtn.addEventListener('click', () => {
+        const countSpan = likeBtn.querySelector('.like-count');
+        let count = parseInt(countSpan.textContent);
+
+        if (likeBtn.classList.contains('liked')) {
             count--;
             likeBtn.classList.remove('liked');
         } else {
-            // Like
             count++;
             likeBtn.classList.add('liked');
         }
 
         countSpan.textContent = count;
 
-        // Animate heart
-        likeBtn.style.transform = "scale(1.4)";
-        setTimeout(() => { likeBtn.style.transform = "scale(1)"; }, 150);
-
-        // Send AJAX to backend
         fetch("{% url 'like_blog' blog.slug %}", {
             method: "POST",
             headers: {
@@ -162,8 +185,37 @@
             },
         });
     });
-});
 
+
+    // 🔖 SAVE
+    const saveBtn = document.getElementById("saveBtn");
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", () => {
+
+            fetch("{% url 'save_blog' blog.slug %}", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if (data.saved) {
+                    saveBtn.classList.add("saved");
+                    saveBtn.innerText = "🔖 Saved";
+                } else {
+                    saveBtn.classList.remove("saved");
+                    saveBtn.innerText = "🔖 Save";
+                }
+
+            });
+        });
+    }
+
+});
 </script>
+
 </body>
 </html>

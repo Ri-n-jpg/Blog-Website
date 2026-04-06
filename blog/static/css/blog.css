@@ -158,15 +158,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Blog Card */
-.blog-card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* make all cards same height in the grid */
-}
+
 
 /* Blog image */
 .blog-card img {
@@ -176,12 +168,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Blog content */
-.blog-content {
-    padding: 15px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
+
 
 .blog-content h5 {
     font-size: 18px;
@@ -240,16 +227,3 @@ h1, h2, h3, h4, h5, h6 {
     color: #4b2e83;
 }
 
-.profile-card p {
-    font-size: 16px;
-    color: #555;
-}
-
-.profile-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
-    margin: 0 auto 15px;
-}

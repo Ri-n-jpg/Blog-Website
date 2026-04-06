@@ -10,17 +10,32 @@ from django.contrib import messages
 # 🏠 Home Page
 def home(request):
     query = request.GET.get('q')
-    blogs_list = Blog.objects.filter(status="Published").order_by()
+
+    # 🔥 Latest blogs (fix order)
+    blogs_list = Blog.objects.filter(status="Published").order_by('-created_at')
+
+    # 🔍 Search
     if query:
         blogs_list = blogs_list.filter(
             Q(title__icontains=query) | Q(blog_body__icontains=query)
         )
+
+    # 🔥 Trending (based on views)
+    trending_blogs = Blog.objects.filter(
+        status="Published",
+        views__gt=10
+    ).order_by('-views', '-created_at')[:5]
+    # 📄 Pagination
     paginator = Paginator(blogs_list, 6)
     page_number = request.GET.get('page')
     blogs = paginator.get_page(page_number)
+
     print("SEARCH QUERY:", query)
 
-    return render(request, 'home.html', {'blogs': blogs})
+    return render(request, 'home.html', {
+        'blogs': blogs,
+        'trending_blogs': trending_blogs
+    })
 
 
 # 📄 Blog Detail Page
@@ -133,12 +148,15 @@ def create_blog(request):
 from django.contrib.auth.models import User
 
 def profile(request, username):
-    user = User.objects.get(username=username)
-    blogs = Blog.objects.filter(author=user)
+    profile_user = get_object_or_404(User, username=username)
+
+    blogs = Blog.objects.filter(author=profile_user)
+    saved_blogs = profile_user.saved_blogs.all().order_by('-created_at')
 
     return render(request, 'profile.html', {
-        'profile_user': user,
-        'blogs': blogs
+        'profile_user': profile_user,
+        'blogs': blogs,
+        'saved_blogs': saved_blogs
     })
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -154,3 +172,20 @@ def like_blog(request, slug):
         blog.save()
         return JsonResponse({"likes": blog.likes})
     return JsonResponse({"error": "Invalid request"}, status=400)
+from django.http import JsonResponse
+
+@login_required
+def save_blog(request, slug):
+    blog = get_object_or_404(Blog, slug=slug)
+
+    if request.user in blog.saved_by.all():
+        blog.saved_by.remove(request.user)
+        saved = False
+    else:
+        blog.saved_by.add(request.user)
+        saved = True
+
+    return JsonResponse({
+        'saved': saved,
+        'total_saved': blog.saved_by.count()
+    })

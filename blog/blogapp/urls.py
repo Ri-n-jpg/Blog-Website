@@ -14,4 +14,5 @@ path('create/', views.create_blog, name='create_blog'),
 path('create-blog/', views.create_blog, name='create_blog'),
 path('profile/<str:username>/', views.profile, name='profile'),
     path('blog/<slug:slug>/like/', views.like_blog, name='like_blog'),
+path('save/<slug:slug>/', views.save_blog, name='save_blog'),
 ]

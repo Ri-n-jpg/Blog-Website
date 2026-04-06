@@ -43,6 +43,9 @@ class Blog(models.Model):
     views = models.IntegerField(default=0)
     # ✅ Add this field
     likes = models.IntegerField(default=0)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    saved_by = models.ManyToManyField(User, related_name='saved_blogs', blank=True)
 
     def __str__(self):
         return self.title

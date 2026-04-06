@@ -3,29 +3,44 @@
 
 <div class="container mt-5">
 
-    <!-- USER INFO -->
-    <div class="card profile-card p-4 shadow mb-4 text-center">
+    <!-- 👤 USER INFO -->
+    <div class="card profile-card p-4 shadow mb-5 text-center">
         {% if profile_user.profile.image %}
             <img src="{{ profile_user.profile.image.url }}" class="profile-img mb-3" alt="Profile Image">
         {% endif %}
         <h2>{{ profile_user.username }}</h2>
-        <p>Total Blogs: {{ blogs|length }}</p>
+        <p>
+            📝 Blogs: {{ blogs|length }} |
+            🔖 Saved: {{ saved_blogs|length }}
+        </p>
     </div>
 
-    <!-- USER BLOGS -->
-    <h3 class="mb-3">Your Blogs</h3>
+    <!-- 📝 MY BLOGS -->
+    <h3 class="mb-3">📝 My Blogs</h3>
 
-    <div class="blog-grid">
+    <div class="row">
         {% for blog in blogs %}
-        <div class="blog-card">
-            <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-            <div class="blog-content">
-                <h5>{{ blog.title }}</h5>
-                <p>{{ blog.short_description|truncatewords:20 }}</p>
-                <div class="blog-footer">
-                    <span class="blog-date">{{ blog.created_at|date:"d/m/Y" }}</span>
-                    <a href="{% url 'blog_detail' blog.slug %}" class="btn btn-primary btn-sm">Read More</a>
+        <div class="col-md-4 mb-4">
+            <div class="blog-card">
+
+                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+
+                <div class="blog-content">
+                    <h5>{{ blog.title|truncatechars:50 }}</h5>
+                    <p>{{ blog.short_description|truncatewords:15 }}</p>
+
+                    <div class="blog-footer">
+                        <span class="blog-date">
+                            📅 {{ blog.created_at|date:"d M Y" }}
+                        </span>
+
+                        <a href="{% url 'blog_detail' blog.slug %}"
+                           class="btn btn-primary btn-sm">
+                           Read →
+                        </a>
+                    </div>
                 </div>
+
             </div>
         </div>
         {% empty %}
@@ -33,6 +48,124 @@
         {% endfor %}
     </div>
 
+    <!-- 🔖 SAVED BLOGS -->
+    <h3 class="mt-5 mb-3">🔖 Saved Blogs</h3>
+
+    <div class="row">
+        {% for blog in saved_blogs %}
+        <div class="col-md-4 mb-4">
+            <div class="blog-card position-relative">
+
+                <!-- ❌ Remove Save -->
+               <button
+    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-save"
+    data-url="{% url 'save_blog' blog.slug %}">
+    ❌
+</button>
+
+                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+
+                <div class="blog-content">
+                    <h5>{{ blog.title|truncatechars:50 }}</h5>
+                    <p>{{ blog.short_description|truncatewords:15 }}</p>
+
+                    <div class="blog-footer">
+                        <span class="blog-date">
+                            📅 {{ blog.created_at|date:"d M Y" }}
+                        </span>
+
+                        <a href="{% url 'blog_detail' blog.slug %}"
+                           class="btn btn-dark btn-sm">
+                           Read →
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No saved blogs yet 😢</p>
+        {% endfor %}
+    </div>
+
 </div>
+
+<!-- 🔥 JS: REMOVE SAVE -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    function getCSRFToken() {
+        return document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+    }
+
+    document.querySelectorAll(".remove-save").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            const url = btn.dataset.url;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.saved) {
+                    btn.closest('.col-md-4').remove(); // 🔥 instant remove
+                }
+            });
+
+        });
+    });
+
+});
+</script>
+
+<!-- 🎨 STYLE -->
+<style>
+.profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Blog Card */
+.blog-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+}
+
+.blog-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.blog-content {
+    padding: 15px;
+}
+
+.blog-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blog-date {
+    font-size: 12px;
+    color: gray;
+}
+</style>
 
 {% endblock %}
