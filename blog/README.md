@@ -44,27 +44,47 @@ Login with superuser credentials.
 
 ---
 
-## 🧠 Models
+## 🧠 Models Overview
 
-### Category
-- category_name
-- slug
-- created_at
-
-### Blog
-- title
-- slug
-- category (ForeignKey)
-- author
-- featured_image
-- short_description
-- blog_body
-- status (Draft/Published)
-- is_featured
-- created_at
+### 📂 Category
+- category_name → Name of category
+- created_at → Creation time
+- updated_at → Last update time
 
 ---
 
+### 📝 Blog
+- title → Blog title
+- slug → SEO-friendly URL
+- category → ForeignKey (Category)
+- author → Django User (ForeignKey)
+- featured_image → Blog image
+- short_description → Preview text
+- blog_body → Full content
+- status → Draft / Published
+- is_featured → Featured post flag
+- views → Blog view counter
+- likes → Like counter
+- saved_by → Users who bookmarked post (ManyToMany)
+- created_at → Created time
+- updated_at → Updated time
+
+---
+
+### 💬 Comment
+- blog → Related blog (ForeignKey)
+- name → Commenter name
+- text → Comment content
+- created_at → Time of comment
+
+---
+
+### 📩 Contact
+- name → User name
+- email → Email address
+- message → Contact message
+- is_read → Admin read status
+- created_at → Submission time
 ## 📌 Future Improvements
 
 -AI -integration
