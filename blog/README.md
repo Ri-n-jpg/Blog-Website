@@ -1,56 +1,80 @@
 # 📝 Django Blog Website
 
-## 📌 Description
-This is a Django-based blog project where users can create, read, update, and delete blog posts. It uses Django MVC architecture with templates, static files, and media support.
+A simple blog website built using Django where users can read and manage blog posts with categories, featured posts, and admin control.
 
 ---
 
 ## 🚀 Features
-- CRUD blog posts
-- Admin panel
-- Media upload support
-- Template-based frontend
-- Django backend
+
+- Create, update, and delete blog posts (Admin only)
+- Category-wise blog system
+- Featured posts section on homepage
+- Slug-based SEO friendly URLs
+- Image upload support for blogs
+- Search and filter in admin panel
+- Clean and responsive UI
 
 ---
 
 ## 🛠️ Tech Stack
+
 - Python
-- Django
-- HTML
-- CSS
-- JavaScript
-- SQLite
+- Django Framework
+- SQLite Database
+- HTML, CSS (Bootstrap)
+- Django Admin Panel
 
 ---
 
-## ⚙️ How to Run
-
-```bash
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
 ## 📁 Project Structure
 BlogProject/
 │
-├── blog/ # Project configuration (settings, urls)
-│ ├── settings.py
-│ ├── urls.py
-│ ├── wsgi.py
-│
-├── blogapp/ # Main application
-│ ├── models.py
-│ ├── views.py
-│ ├── urls.py
-│ ├── admin.py
-│ ├── migrations/
-│
-├── templates/ # HTML templates
-│
-├── static/ # CSS, JS, images
-│
-├── media/ # Uploaded media files
-│
-├── db.sqlite3 # Database (ignored in Git)
-│
-├── manage.py # Django entry point
+├── blog/ # Project settings
+├── blogapp/ # Main blog app
+├── templates/ # HTML files
+├── static/ # CSS/JS files
+├── media/ # Uploaded images
+├── db.sqlite3 # Database
+└── manage.py
+
+---
+
+
+Login with superuser credentials.
+
+---
+
+## 🧠 Models
+
+### Category
+- category_name
+- slug
+- created_at
+
+### Blog
+- title
+- slug
+- category (ForeignKey)
+- author
+- featured_image
+- short_description
+- blog_body
+- status (Draft/Published)
+- is_featured
+- created_at
+
+---
+
+## 📌 Future Improvements
+
+-AI -integration
+
+
+
+---
+
+## 👨‍💻 Author
+
+Developed by **Ritika Sharma**
+
+---
