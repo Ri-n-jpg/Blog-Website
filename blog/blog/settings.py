@@ -19,9 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 🔐 SECURITY
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = False
+# TEMPORARY (for debugging 500 error)
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # 📦 APPS
@@ -55,7 +56,7 @@ ROOT_URLCONF = 'blog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [BASE_DIR / "templates"],   # ✅ FIXED
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'blog.wsgi.application'
 
 
-# 🗄 DATABASE (keep SQLite for now)
+# 🗄 DATABASE
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -104,7 +105,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # 🖼 MEDIA FILES
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # 🔑 AUTH SETTINGS
