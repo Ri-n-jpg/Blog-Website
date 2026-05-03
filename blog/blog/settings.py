@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 🔐 SECURITY
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-local-123456")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']   # later replace with your Render URL
 
