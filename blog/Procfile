@@ -1,1 +1,1 @@
-gunicorn blog.blog.wsgi
+cd blog && gunicorn blog.wsgi
