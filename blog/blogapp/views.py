@@ -1,36 +1,36 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils.text import slugify
-from .models import Blog, Comment, Contact,Category
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.text import slugify
 
-# 🏠 Home Page
+from .models import Blog, Comment, Contact, Category
+
+
+# 🏠 HOME PAGE
 def home(request):
     query = request.GET.get('q')
 
-    # 🔥 Latest blogs (fix order)
     blogs_list = Blog.objects.filter(status="Published").order_by('-created_at')
 
-    # 🔍 Search
     if query:
         blogs_list = blogs_list.filter(
             Q(title__icontains=query) | Q(blog_body__icontains=query)
         )
 
-    # 🔥 Trending (based on views)
     trending_blogs = Blog.objects.filter(
         status="Published",
         views__gt=10
     ).order_by('-views', '-created_at')[:5]
-    # 📄 Pagination
+
     paginator = Paginator(blogs_list, 6)
     page_number = request.GET.get('page')
     blogs = paginator.get_page(page_number)
-
-    print("SEARCH QUERY:", query)
 
     return render(request, 'home.html', {
         'blogs': blogs,
@@ -38,50 +38,52 @@ def home(request):
     })
 
 
-# 📄 Blog Detail Page
+# 📄 BLOG DETAIL
 def blog_detail(request, slug):
     blog = get_object_or_404(Blog, slug=slug)
 
-    # Optional: increase views 🔥
     blog.views += 1
     blog.save()
+
     comments = blog.comments.all().order_by('-created_at')
 
     if request.method == 'POST':
-        name = request.POST.get('name')
-        text = request.POST.get('text')
         Comment.objects.create(
             blog=blog,
-            name=name,
-            text=text
+            name=request.POST.get('name'),
+            text=request.POST.get('text')
         )
         return redirect('blog_detail', slug=slug)
 
-    return render(request, 'blog_detail.html', {'blog': blog, 'comments': comments})
+    return render(request, 'blog_detail.html', {
+        'blog': blog,
+        'comments': comments
+    })
 
 
-# ℹ️ About Page
+# ℹ️ ABOUT
 def about(request):
     return render(request, 'about.html')
 
 
-# 📞 Contact Page
+# 📞 CONTACT
 def contact(request):
     if request.method == "POST":
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        print(name, email, message)
+        Contact.objects.create(
+            name=request.POST.get('name'),
+            email=request.POST.get('email'),
+            message=request.POST.get('message')
+        )
         return render(request, 'contact.html', {'success': True})
+
     return render(request, 'contact.html')
 
 
-# ✏️ Edit Blog (login required)
+# ✏️ EDIT BLOG
 @login_required
 def edit_blog(request, slug):
     blog = get_object_or_404(Blog, slug=slug)
 
-    # ✅ Only author can edit
     if request.user != blog.author:
         return redirect('home')
 
@@ -94,12 +96,11 @@ def edit_blog(request, slug):
     return render(request, 'edit_blog.html', {'blog': blog})
 
 
-# 🗑️ Delete Blog (login required)
+# 🗑️ DELETE BLOG
 @login_required
 def delete_blog(request, slug):
     blog = get_object_or_404(Blog, slug=slug)
 
-    # ✅ Only author can delete
     if request.user != blog.author:
         return redirect('home')
 
@@ -107,19 +108,25 @@ def delete_blog(request, slug):
     return redirect('home')
 
 
-# 👤 Signup View
+# 👤 SIGNUP
 def signup_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Account created successfully! You can now log in.')
+            messages.success(request, "Account created successfully!")
             return redirect('login')
     else:
         form = UserCreationForm()
+
     return render(request, 'signup.html', {'form': form})
+
+
+# 📝 CREATE BLOG (FIXED CATEGORY ISSUE)
 @login_required
 def create_blog(request):
+    categories = Category.objects.all()
+
     if request.method == "POST":
         title = request.POST.get('title')
         category_id = request.POST.get('category')
@@ -128,12 +135,19 @@ def create_blog(request):
         blog_body = request.POST.get('blog_body')
         status = request.POST.get('status')
 
-        slug = slugify(title)
+        # 🚨 VALIDATION
+        if not title:
+            return HttpResponse("Title is required")
 
-        blog = Blog.objects.create(
+        if not category_id:
+            return HttpResponse("Category is required")
+
+        category = get_object_or_404(Category, id=category_id)
+
+        Blog.objects.create(
             title=title,
-            slug=slug,
-            category_id=category_id,
+            slug=slugify(title),
+            category=category,
             author=request.user,
             featured_image=image,
             short_description=short_description,
@@ -141,39 +155,40 @@ def create_blog(request):
             status=status
         )
 
-        return redirect('blog_detail', slug=blog.slug)
+        return redirect('home')
 
-    categories = Category.objects.all()
-    return render(request, 'create_blog.html', {'categories': categories})
-from django.contrib.auth.models import User
+    return render(request, 'create_blog.html', {
+        'categories': categories
+    })
 
+
+# 👤 PROFILE
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
 
     blogs = Blog.objects.filter(author=profile_user)
-    saved_blogs = profile_user.saved_blogs.all().order_by('-created_at')
+    saved_blogs = profile_user.saved_blogs.all()
 
     return render(request, 'profile.html', {
         'profile_user': profile_user,
         'blogs': blogs,
         'saved_blogs': saved_blogs
     })
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 
+# ❤️ LIKE BLOG
 @csrf_exempt
 def like_blog(request, slug):
     if request.method == "POST":
         blog = get_object_or_404(Blog, slug=slug)
-
-        # Toggle like for demonstration (simple count)
         blog.likes += 1
         blog.save()
         return JsonResponse({"likes": blog.likes})
-    return JsonResponse({"error": "Invalid request"}, status=400)
-from django.http import JsonResponse
 
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# 💾 SAVE BLOG
 @login_required
 def save_blog(request, slug):
     blog = get_object_or_404(Blog, slug=slug)
